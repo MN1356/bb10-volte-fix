@@ -1,0 +1,49 @@
+{
+  "target_device": "BlackBerry Passport (SQW100-1 / Windermere EMEA)",
+  "target_os": "10.3.3.3216",
+  "binary": "/radio/bin/ims_rrm",
+  "stock_sha256": "043d38b0f08cf6a9696ef405f3976679e32ff9ad943ec35294c3d3da69a12b67",
+  "patched_sha256": "3353f44609206b8ebcb138ad2b39752af76339e94a839cc0699842608b73b3c2",
+  "patches": [
+    {
+      "name": "pps_redirect",
+      "offset_hex": "0x366bed",
+      "offset_dec": 3566573,
+      "original_hex": "2f7070732f73657276696365732f636172726965725f636f6e6669672f726164696f5f7163742f696d7300",
+      "patched_hex": "2f7070732f766f6c74655f70726f62652f696d730000000000000000000000000000000000000000000000",
+      "purpose": "Redirect hardcoded PPS path to /pps/volte_probe/ims for custom carrier config"
+    },
+    {
+      "name": "vops_bypass",
+      "offset_hex": "0x62c54",
+      "offset_dec": 404564,
+      "original_hex": "c7b9",
+      "patched_hex": "18e0",
+      "purpose": "selectDomainVoice: bypass VoPS=0 network veto (cbnz r7 -> b 0x62c88)"
+    },
+    {
+      "name": "precondition_policy",
+      "offset_hex": "0xb8e6e",
+      "offset_dec": 757358,
+      "original_hex": "20b1",
+      "patched_hex": "00bf",
+      "purpose": "SIP client: force Precondition.Policy = volte (cbz r0 -> nop)"
+    },
+    {
+      "name": "carrier_whitelist_bypass",
+      "offset_hex": "0x114104",
+      "offset_dec": 1130756,
+      "original_hex": "34d0",
+      "patched_hex": "34e0",
+      "purpose": "ImsPpsCarrierCfgIr92Object: force UsePreconditions = 1 for all carriers (beq -> b)"
+    },
+    {
+      "name": "fast_update_trigger",
+      "offset_hex": "0x19eb6e",
+      "offset_dec": 1698670,
+      "original_hex": "3bd0",
+      "patched_hex": "00bf",
+      "purpose": "precondStep: bypass 8000ms QCI=1 bearer timer to immediately send UPDATE on 183 Session Progress (beq -> nop)"
+    }
+  ]
+}

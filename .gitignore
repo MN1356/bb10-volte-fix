@@ -1,0 +1,27 @@
+# Binaries and archives
+*.exe
+*.zip
+*.tar.gz
+ims_rrm
+*.o
+*.obj
+
+# Sensitive / embedded data
+embedded_data.h
+*.pem
+*.key
+id_rsa*
+*.id_rsa
+
+# Submodule / upstream development clone
+bb10-volte/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
