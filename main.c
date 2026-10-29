@@ -140,6 +140,8 @@ int main(int argc, char *argv[]) {
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
              "-o HostKeyAlgorithms=+ssh-rsa "
+             "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
+             "-o MACs=+hmac-sha1 "
              "-o ConnectTimeout=8 "
              "root@%s \"uname -a\"",
              ssh_bin, key_path, passport_ip);
@@ -163,6 +165,8 @@ int main(int argc, char *argv[]) {
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
              "-o HostKeyAlgorithms=+ssh-rsa "
+             "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
+             "-o MACs=+hmac-sha1 "
              "\"%s\" root@%s:/tmp/payload.tar.gz",
              scp_bin, key_path, payload_path, passport_ip);
 
@@ -183,6 +187,8 @@ int main(int argc, char *argv[]) {
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
              "-o HostKeyAlgorithms=+ssh-rsa "
+             "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
+             "-o MACs=+hmac-sha1 "
              "root@%s \""
              "cd /tmp && rm -rf passport_volte_dist && tar -xzf payload.tar.gz && /bin/sh /tmp/passport_volte_dist/deploy_device.sh"
              "\"",

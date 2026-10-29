@@ -5,6 +5,7 @@
 ims_rrm
 *.o
 *.obj
+passport_volte_dist/
 
 # Sensitive / embedded data
 embedded_data.h

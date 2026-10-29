@@ -13,7 +13,7 @@ if [ -z "$PASSPORT_IP" ]; then
     exit 1
 fi
 
-SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 -o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr -o HostKeyAlgorithms=+ssh-rsa"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o KexAlgorithms=diffie-hellman-group14-sha1 -o Ciphers=aes128-ctr,aes256-ctr -o MACs=hmac-sha1 -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
 if [ -f "$SSH_KEY" ]; then
     SSH_OPTS="$SSH_OPTS -i $SSH_KEY"
 fi
@@ -27,7 +27,7 @@ ssh $SSH_OPTS root@$PASSPORT_IP "mkdir -p /var/rootdata/q10_volte/device /var/ro
 echo "==> Uploading VoLTE runtime files..."
 scp $SSH_OPTS bb10-volte/device/*.py bb10-volte/device/*.sh root@$PASSPORT_IP:/var/rootdata/q10_volte/device/
 scp $SSH_OPTS bb10-volte/materials/payload-manifest.json root@$PASSPORT_IP:/var/rootdata/q10_volte/device/payload-manifest.json
-scp $SSH_OPTS bb10-volte/driver/devnp-volte_swcrypto_probe.so root@$PASSPORT_IP:/var/rootdata/q10_volte/driver/
+scp $SSH_OPTS bb10-volte/driver/devnp-volte_swcrypto_probe.so root@$PASSPORT_IP:/var/rootdata/q10_volte/driver/ 2>/dev/null || true
 scp $SSH_OPTS bb10-volte/profiles/*.json root@$PASSPORT_IP:/var/rootdata/q10_volte/profiles/
 
 echo "==> Configuring Auto-Start on Boot (AutoRoot V4 addon)..."
