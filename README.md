@@ -1,11 +1,11 @@
-# BlackBerry Passport (SQW100-1) VoLTE Revival & Patch Suite
+# BlackBerry 10 (Passport / Q10 / Q20) VoLTE Revival & Patch Suite
 
-[![Target Device](https://img.shields.io/badge/Device-BlackBerry%20Passport%20(SQW100--1)-blue.svg)](#)
+[![Target Devices](https://img.shields.io/badge/Devices-Passport%20%7C%20Q10%20%7C%20Q20%20Classic-blue.svg)](#)
 [![Target OS](https://img.shields.io/badge/BB10%20OS-10.3.3.3216-green.svg)](#)
-[![VoLTE](https://img.shields.io/badge/Feature-VoLTE%20%2F%204G%20Calling-orange.svg)](#)
+[![Carriers](https://img.shields.io/badge/Carriers-Viettel%20%7C%20MobiFone%20%7C%20VinaPhone-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](#)
 
-A reverse-engineered binary patch utility and deployment suite enabling native **VoLTE (Voice over LTE)** calling on rooted **BlackBerry Passport** (`SQW100-1`) devices on modern 4G LTE networks (tested with Viettel Vietnam MCC `452`, MNC `04`, as well as standard 3GPP / IR.92 IMS networks).
+A reverse-engineered binary patch utility and deployment suite enabling native **VoLTE (Voice over LTE)** calling on rooted **BlackBerry 10** devices (**Passport SQW100**, **Q10 SQN100**, and **Classic Q20 SQC100**) on modern 4G LTE networks in Vietnam (**Viettel**, **MobiFone**, **VinaPhone**), as well as standard 3GPP / IR.92 IMS networks.
 
 ---
 
@@ -61,12 +61,23 @@ python3 apply_volte_patch.py /path/to/stock/ims_rrm /path/to/output/ims_rrm
 ```
 
 ### 2. Direct Deployment via Shell
-To deploy to a rooted Passport connected via Wi-Fi or USB:
+To deploy to a rooted BlackBerry 10 device connected via Wi-Fi or USB:
 ```bash
-./deploy_to_passport.sh 192.168.0.101 ~/.ssh/id_rsa
+# Auto-detect carrier from SIM (default)
+./deploy_to_passport.sh 192.168.0.101 ~/.ssh/id_rsa auto
+
+# Or specify carrier explicitly (viettel, mobifone, vinaphone, vietnam-all):
+./deploy_to_passport.sh 192.168.0.101 ~/.ssh/id_rsa mobifone
+./deploy_to_passport.sh 192.168.0.101 ~/.ssh/id_rsa vinaphone
 ```
 
-### 3. Compiling the Windows Deployer (`main.c`)
+### 3. Supported Vietnam Carrier Profiles
+* **Viettel** (`viettel.json`): MCC `452`, MNC `04`, Data APN `v-internet`, IMS APN `ims`, Preconditions enabled.
+* **MobiFone** (`mobifone.json`): MCC `452`, MNC `01`, Data APN `m-wap` / `m3-world`, IMS APN `ims`, Preconditions enabled.
+* **VinaPhone** (`vinaphone.json`): MCC `452`, MNC `02`, Data APN `m3-world` / `v-internet`, IMS APN `ims`, Preconditions enabled.
+* **Universal Vietnam** (`vietnam-all.json`): Universal profile supporting all Vietnamese carriers (MNC `01`, `02`, `04`, `05`).
+
+### 4. Compiling the Windows Deployer (`main.c`)
 To build the standalone Windows utility using MinGW:
 ```bash
 # Standalone mode (looks for id_rsa and payload bundle in the current folder)

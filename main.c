@@ -7,12 +7,12 @@
 #include "embedded_data.h"
 #endif
 
-#define TOOL_VERSION "1.0.0"
+#define TOOL_VERSION "1.1.0"
 
 void print_banner() {
     printf("====================================================================\n");
-    printf("     BlackBerry Passport (SQW100-1) VoLTE Revival Tool v%s\n", TOOL_VERSION);
-    printf("     Automatic 4G LTE VoLTE Patcher & Deployer (Viettel / IR.92)\n");
+    printf("     BlackBerry 10 (Passport / Q10 / Q20) VoLTE Revival Tool v%s\n", TOOL_VERSION);
+    printf("     Automatic 4G LTE VoLTE Patcher & Deployer (Vietnam Carriers)\n");
     printf("====================================================================\n\n");
 }
 
@@ -54,12 +54,14 @@ int main(int argc, char *argv[]) {
         strcpy(scp_bin, "scp");
     }
 
-    // Get Passport IP
+    char carrier_choice[32] = "auto";
+
+    // Get Device IP
     if (argc > 1) {
         strncpy(passport_ip, argv[1], sizeof(passport_ip) - 1);
         passport_ip[sizeof(passport_ip) - 1] = '\0';
     } else {
-        printf("Enter BlackBerry Passport IP address [%s]: ", passport_ip);
+        printf("Enter BlackBerry 10 device IP address [%s]: ", passport_ip);
         if (fgets(user_input, sizeof(user_input), stdin)) {
             char *p = user_input;
             while (*p) {
@@ -76,7 +78,43 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    printf("\n[*] Target Passport IP: %s\n", passport_ip);
+    // Get Carrier Selection
+    if (argc > 2) {
+        strncpy(carrier_choice, argv[2], sizeof(carrier_choice) - 1);
+        carrier_choice[sizeof(carrier_choice) - 1] = '\0';
+    } else {
+        printf("\nSelect Carrier Profile:\n");
+        printf("  1. Auto-detect from SIM (Recommended)\n");
+        printf("  2. Viettel (452-04)\n");
+        printf("  3. MobiFone (452-01)\n");
+        printf("  4. VinaPhone (452-02)\n");
+        printf("  5. Universal Vietnam (All 452 carriers)\n");
+        printf("Enter choice [1]: ");
+        if (fgets(user_input, sizeof(user_input), stdin)) {
+            char *p = user_input;
+            while (*p) {
+                if (*p == '\r' || *p == '\n') {
+                    *p = '\0';
+                    break;
+                }
+                p++;
+            }
+            if (strcmp(user_input, "2") == 0 || strcasecmp(user_input, "viettel") == 0) {
+                strcpy(carrier_choice, "viettel");
+            } else if (strcmp(user_input, "3") == 0 || strcasecmp(user_input, "mobifone") == 0) {
+                strcpy(carrier_choice, "mobifone");
+            } else if (strcmp(user_input, "4") == 0 || strcasecmp(user_input, "vinaphone") == 0) {
+                strcpy(carrier_choice, "vinaphone");
+            } else if (strcmp(user_input, "5") == 0 || strcasecmp(user_input, "all") == 0) {
+                strcpy(carrier_choice, "vietnam-all");
+            } else {
+                strcpy(carrier_choice, "auto");
+            }
+        }
+    }
+
+    printf("\n[*] Target Device IP: %s\n", passport_ip);
+    printf("[*] Carrier Profile : %s\n", carrier_choice);
 
     // Setup temporary working directory
     if (!GetTempPathA(sizeof(temp_dir), temp_dir)) {
@@ -180,7 +218,7 @@ int main(int argc, char *argv[]) {
     printf("[+] VoLTE bundle uploaded successfully.\n");
 
     // Execute remote installer
-    printf("\n[*] Deploying and launching VoLTE service on Passport...\n");
+    printf("\n[*] Deploying and launching VoLTE service on device...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -p 22 -i \"%s\" "
              "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
@@ -190,9 +228,9 @@ int main(int argc, char *argv[]) {
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
              "root@%s \""
-             "cd /tmp && rm -rf passport_volte_dist && tar -xzf payload.tar.gz && /bin/sh /tmp/passport_volte_dist/deploy_device.sh"
+             "cd /tmp && rm -rf passport_volte_dist && mkdir -p passport_volte_dist && tar -xzf payload.tar.gz -C passport_volte_dist && /bin/sh /tmp/passport_volte_dist/deploy_device.sh %s"
              "\"",
-             ssh_bin, key_path, passport_ip);
+             ssh_bin, key_path, passport_ip, carrier_choice);
 
     ret = system(cmd);
 
