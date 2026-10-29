@@ -151,13 +151,24 @@ int main(int argc, char *argv[]) {
     snprintf(key_path, sizeof(key_path), "%s\\id_rsa", work_dir);
     snprintf(payload_path, sizeof(payload_path), "%s\\payload.tar.gz", work_dir);
 
+    int custom_key = 0;
+    if (file_exists("id_rsa")) {
+        printf("[*] Found custom 'id_rsa' in current folder, using it...\n");
+        CopyFileA("id_rsa", key_path, FALSE);
+        custom_key = 1;
+    }
+
 #ifdef HAVE_EMBEDDED_DATA
-    printf("[*] Extracting embedded private key and VoLTE patch payload...\n");
-    if (!write_embedded_file(key_path, EMBEDDED_SSH_KEY, EMBEDDED_SSH_KEY_len)) {
-        printf("[-] Failed to write SSH key to temporary directory.\n");
-        printf("\nPress Enter to exit...");
-        getchar();
-        return 1;
+    if (!custom_key) {
+        printf("[*] Extracting embedded private key and VoLTE patch payload...\n");
+        if (!write_embedded_file(key_path, EMBEDDED_SSH_KEY, EMBEDDED_SSH_KEY_len)) {
+            printf("[-] Failed to write SSH key to temporary directory.\n");
+            printf("\nPress Enter to exit...");
+            getchar();
+            return 1;
+        }
+    } else {
+        printf("[*] Extracting VoLTE patch payload...\n");
     }
     if (!write_embedded_file(payload_path, EMBEDDED_PAYLOAD, EMBEDDED_PAYLOAD_len)) {
         printf("[-] Failed to write payload to temporary directory.\n");
@@ -165,8 +176,7 @@ int main(int argc, char *argv[]) {
         getchar();
         return 1;
     }
-    printf("[+] Extracted %u bytes (Key) and %u bytes (VoLTE Bundle).\n", 
-           EMBEDDED_SSH_KEY_len, EMBEDDED_PAYLOAD_len);
+    printf("[+] Ready: Key and VoLTE Bundle staged successfully.\n");
 #else
     // Standalone mode: load key and payload from current directory or specific paths
     if (file_exists("id_rsa")) {
@@ -199,34 +209,37 @@ int main(int argc, char *argv[]) {
     printf("\n[*] Connecting to root@%s (testing SSH)...\n", passport_ip);
     snprintf(cmd, sizeof(cmd),
              "%s -p 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
-             "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
+             "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
-             "-o ConnectTimeout=8 "
+             "-o ConnectTimeout=12 "
              "root@%s \"uname -a\"",
              ssh_bin, key_path, passport_ip);
 
     int ret = system(cmd);
     if (ret != 0) {
-        printf("\n[-] Error: Could not connect to Passport at %s.\n", passport_ip);
-        printf("    Please ensure:\n");
-        printf("    1. The Passport is on the same Wi-Fi network or USB IP.\n");
-        printf("    2. Development Mode / SSH is enabled on port 22 with root access.\n");
+        printf("\n[-] Error: Could not connect to device at %s (exit code %d).\n", passport_ip, ret);
+        printf("    Diagnosis & Troubleshooting:\n");
+        printf("    1. IP Address: On phone, go to Settings -> Security & Privacy -> Development Mode.\n");
+        printf("       Check the exact 'Development IPv4 Address' shown on your phone's screen.\n");
+        printf("    2. If using USB: In Settings -> Storage & Access, ensure USB is set to 'Connect to Windows'.\n");
+        printf("    3. If using Wi-Fi: Ensure phone and PC are connected to the SAME Wi-Fi network.\n");
+        printf("    4. SSH Key: If you used a personal AutoRoot key, put your 'id_rsa' in this tool's folder.\n");
         printf("\nPress Enter to exit...");
         getchar();
         return 1;
     }
 
     // Upload payload
-    printf("\n[*] Uploading VoLTE package to Passport (/tmp/payload.tar.gz)...\n");
+    printf("\n[*] Uploading VoLTE package to device (/tmp/payload.tar.gz)...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -O -P 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
-             "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
+             "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
@@ -246,9 +259,9 @@ int main(int argc, char *argv[]) {
     printf("\n[*] Deploying and launching VoLTE service on device...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -p 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
-             "-o Ciphers=+aes128-cbc,3des-cbc,aes256-cbc,aes128-ctr,aes256-ctr "
+             "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
