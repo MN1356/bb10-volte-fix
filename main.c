@@ -17,6 +17,8 @@ void print_banner() {
 }
 
 int write_embedded_file(const char *path, const unsigned char *data, unsigned int len) {
+    SetFileAttributesA(path, FILE_ATTRIBUTE_NORMAL);
+    DeleteFileA(path);
     FILE *f = fopen(path, "wb");
     if (!f) {
         printf("[-] Error: Unable to create file '%s'\n", path);
@@ -120,8 +122,31 @@ int main(int argc, char *argv[]) {
     if (!GetTempPathA(sizeof(temp_dir), temp_dir)) {
         strcpy(temp_dir, "C:\\Temp");
     }
-    snprintf(work_dir, sizeof(work_dir), "%sbb10_volte_installer", temp_dir);
-    CreateDirectoryA(work_dir, NULL);
+    // Ensure trailing slash
+    size_t tlen = strlen(temp_dir);
+    if (tlen > 0 && temp_dir[tlen - 1] != '\\' && temp_dir[tlen - 1] != '/') {
+        strcat(temp_dir, "\\");
+    }
+
+    // Clean up any legacy temp folder from older v1.0.0 versions
+    char legacy_dir[MAX_PATH], legacy_file[MAX_PATH];
+    snprintf(legacy_dir, sizeof(legacy_dir), "%sbb10_volte_installer", temp_dir);
+    snprintf(legacy_file, sizeof(legacy_file), "%s\\id_rsa", legacy_dir);
+    SetFileAttributesA(legacy_file, FILE_ATTRIBUTE_NORMAL);
+    DeleteFileA(legacy_file);
+    snprintf(legacy_file, sizeof(legacy_file), "%s\\payload.tar.gz", legacy_dir);
+    SetFileAttributesA(legacy_file, FILE_ATTRIBUTE_NORMAL);
+    DeleteFileA(legacy_file);
+    RemoveDirectoryA(legacy_dir);
+
+    // Use a unique per-process temp folder to prevent ACL or concurrency collisions
+    snprintf(work_dir, sizeof(work_dir), "%sbb10_volte_%lu_%lu", 
+             temp_dir, (unsigned long)GetCurrentProcessId(), (unsigned long)GetTickCount());
+    if (!CreateDirectoryA(work_dir, NULL) && GetLastError() != ERROR_ALREADY_EXISTS) {
+        // Fallback if temp directory creation failed
+        snprintf(work_dir, sizeof(work_dir), ".\\bb10_volte_temp");
+        CreateDirectoryA(work_dir, NULL);
+    }
 
     snprintf(key_path, sizeof(key_path), "%s\\id_rsa", work_dir);
     snprintf(payload_path, sizeof(payload_path), "%s\\payload.tar.gz", work_dir);
@@ -235,7 +260,9 @@ int main(int argc, char *argv[]) {
     ret = system(cmd);
 
     // Cleanup local temp
+    SetFileAttributesA(key_path, FILE_ATTRIBUTE_NORMAL);
     DeleteFileA(key_path);
+    SetFileAttributesA(payload_path, FILE_ATTRIBUTE_NORMAL);
     DeleteFileA(payload_path);
     RemoveDirectoryA(work_dir);
 
