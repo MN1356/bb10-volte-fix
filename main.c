@@ -47,10 +47,10 @@ int main(int argc, char *argv[]) {
 
     print_banner();
 
-    // Determine OpenSSH path
+    // Determine OpenSSH path (no quotes around binary path to prevent cmd.exe quote-stripping)
     if (file_exists("C:\\Windows\\System32\\OpenSSH\\ssh.exe")) {
-        strcpy(ssh_bin, "\"C:\\Windows\\System32\\OpenSSH\\ssh.exe\"");
-        strcpy(scp_bin, "\"C:\\Windows\\System32\\OpenSSH\\scp.exe\"");
+        strcpy(ssh_bin, "C:\\Windows\\System32\\OpenSSH\\ssh.exe");
+        strcpy(scp_bin, "C:\\Windows\\System32\\OpenSSH\\scp.exe");
     } else {
         strcpy(ssh_bin, "ssh");
         strcpy(scp_bin, "scp");
