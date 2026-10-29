@@ -35,7 +35,7 @@ int file_exists(const char *path) {
 }
 
 int main(int argc, char *argv[]) {
-    char passport_ip[128] = "192.168.0.101";
+    char passport_ip[128] = "169.254.0.1";
     char user_input[128] = "";
     char temp_dir[MAX_PATH];
     char work_dir[MAX_PATH];
