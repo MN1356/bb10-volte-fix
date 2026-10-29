@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
     char work_dir[MAX_PATH];
     char key_path[MAX_PATH];
     char payload_path[MAX_PATH];
+    char bootstrap_path[MAX_PATH];
     char ssh_bin[MAX_PATH] = "ssh";
     char scp_bin[MAX_PATH] = "scp";
     char cmd[4096];
@@ -150,6 +151,37 @@ int main(int argc, char *argv[]) {
 
     snprintf(key_path, sizeof(key_path), "%s\\id_rsa", work_dir);
     snprintf(payload_path, sizeof(payload_path), "%s\\payload.tar.gz", work_dir);
+    snprintf(bootstrap_path, sizeof(bootstrap_path), "%s\\bootstrap.py", work_dir);
+
+    // Staging bootstrap Python helper for clean and reliable remote extraction on QNX
+    const char *bootstrap_script =
+        "import sys, os, tarfile, shutil\n"
+        "p = '/var/rootdata/passport_volte_dist'\n"
+        "if os.path.exists(p):\n"
+        "    shutil.rmtree(p, ignore_errors=True)\n"
+        "try:\n"
+        "    os.makedirs(p)\n"
+        "except Exception:\n"
+        "    pass\n"
+        "tar = tarfile.open('/var/rootdata/payload.tar.gz')\n"
+        "tar.extractall(p)\n"
+        "tar.close()\n"
+        "carrier = sys.argv[1] if len(sys.argv) > 1 else 'auto'\n"
+        "ret = os.system('/bin/sh ' + p + '/deploy_device.sh ' + carrier)\n"
+        "shutil.rmtree(p, ignore_errors=True)\n"
+        "if os.path.exists('/var/rootdata/payload.tar.gz'):\n"
+        "    try: os.unlink('/var/rootdata/payload.tar.gz')\n"
+        "    except Exception: pass\n"
+        "if os.path.exists('/var/rootdata/bootstrap.py'):\n"
+        "    try: os.unlink('/var/rootdata/bootstrap.py')\n"
+        "    except Exception: pass\n"
+        "sys.exit(0 if ret == 0 else 1)\n";
+
+    FILE *fbs = fopen(bootstrap_path, "wb");
+    if (fbs) {
+        fwrite(bootstrap_script, 1, strlen(bootstrap_script), fbs);
+        fclose(fbs);
+    }
 
     int custom_key = 0;
     if (file_exists("id_rsa")) {
@@ -233,8 +265,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Upload payload
-    printf("\n[*] Uploading VoLTE package to device (/tmp/payload.tar.gz)...\n");
+    // Upload payload and bootstrap helper
+    printf("\n[*] Uploading VoLTE package to device (/var/rootdata/payload.tar.gz)...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -O -P 22 -i \"%s\" "
              "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
@@ -243,8 +275,8 @@ int main(int argc, char *argv[]) {
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
-             "\"%s\" root@%s:/tmp/payload.tar.gz",
-             scp_bin, key_path, payload_path, passport_ip);
+             "\"%s\" \"%s\" root@%s:/var/rootdata/",
+             scp_bin, key_path, payload_path, bootstrap_path, passport_ip);
 
     ret = system(cmd);
     if (ret != 0) {
@@ -265,9 +297,7 @@ int main(int argc, char *argv[]) {
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
-             "root@%s \""
-             "cd /tmp && rm -rf passport_volte_dist && mkdir -p passport_volte_dist && tar -xzf payload.tar.gz -C passport_volte_dist && /bin/sh /tmp/passport_volte_dist/deploy_device.sh %s"
-             "\"",
+             "root@%s \"python3.2 /var/rootdata/bootstrap.py %s\"",
              ssh_bin, key_path, passport_ip, carrier_choice);
 
     ret = system(cmd);
@@ -277,12 +307,14 @@ int main(int argc, char *argv[]) {
     DeleteFileA(key_path);
     SetFileAttributesA(payload_path, FILE_ATTRIBUTE_NORMAL);
     DeleteFileA(payload_path);
+    SetFileAttributesA(bootstrap_path, FILE_ATTRIBUTE_NORMAL);
+    DeleteFileA(bootstrap_path);
     RemoveDirectoryA(work_dir);
 
     printf("\n====================================================================\n");
     if (ret == 0) {
         printf("[+] VoLTE Revival deployment process completed!\n");
-        printf("    Check your BlackBerry Passport screen:\n");
+        printf("    Check your BlackBerry device screen:\n");
         printf("    - LTE network active\n");
         printf("    - Ready for incoming & outgoing VoLTE calling\n");
     } else {
