@@ -5,6 +5,7 @@
 ims_rrm
 *.o
 *.obj
+*.pdb
 passport_volte_dist/
 
 # Sensitive / embedded data
