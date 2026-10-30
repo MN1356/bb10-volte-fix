@@ -87,8 +87,10 @@ ssh $SSH_OPTS root@$PHONE_IP "
   export PYTHONHOME=/usr
   export PYTHONPATH=/usr/lib/python32.zip:/usr/lib/python3.2/lib-dynload
   /usr/bin/python3.2 /var/rootdata/q10_volte/device/configure_carrier.py '$CARRIER'
-  slay -f python3.2 ims_rrm 2>/dev/null || true
-  sleep 1
+  /var/rootdata/q10_volte/device/run.sh stop 2>/dev/null || true
+  slay -f ims_rrm 2>/dev/null || true
+  sleep 2
+  rm -f /var/rootdata/q10_volte/state/lock.json /var/rootdata/q10_volte/state/stop-request
   /var/rootdata/q10_volte/device/run.sh start
 "
 

@@ -60,8 +60,11 @@ ssh $SSH_OPTS root@$PASSPORT_IP "
 
 echo "==> Launching VoLTE service..."
 ssh $SSH_OPTS root@$PASSPORT_IP "
-  slay -f python3.2 ims_rrm 2>/dev/null || true
+  /var/rootdata/q10_volte/device/run.sh stop 2>/dev/null || true
+  slay -f ims_rrm 2>/dev/null || true
   rm -f /var/rootdata/q10_volte/runtime/ims_rrm
+  sleep 2
+  rm -f /var/rootdata/q10_volte/state/lock.json /var/rootdata/q10_volte/state/stop-request
   /bin/sh /var/rootdata/q10_volte/device/run.sh start
 "
 

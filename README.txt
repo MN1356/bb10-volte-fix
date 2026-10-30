@@ -16,6 +16,8 @@ Target OS: BlackBerry 10 OS 10.3.3.3216 (May da root qua AutoRoot V4)
 2. TINH NANG NOI BAT (v1.2.0):
    - Standalone 1-File: Toan bo ma nguon, khoa SSH Root va bo Patch VoLTE da duoc
      dong goi truc tiep vao trong file .exe. Chi can nhap dup chuot la chay ngay.
+   - Ho tro day du ca 2 chieu: Goi di va nhan cuoc goi den tren song 4G LTE
+     (khac phuc triet de loi tong dai tu ngat cuoc goi den sau khi tat 2G/3G).
    - Ho tro toan bo codec AMR-WB (16kHz HD Voice) va AMR-NB (8kHz), khac phuc triet de
      loi "Call failure: the call could not be connected" / "488 Not Acceptable Here".
    - Tich hop cau noi Audio Bridge: Chuyen doi loa ngoai (Speaker) va loa trong
@@ -41,7 +43,9 @@ Target OS: BlackBerry 10 OS 10.3.3.3216 (May da root qua AutoRoot V4)
            - Nhan 1: Tu dong nhan dien nha mang theo SIM (Khuyen dung).
            - Nhan 2: Viettel | 3: MobiFone | 4: VinaPhone | 5: Universal Vietnam.
    Buoc 5: Tool se tu dong ket noi SSH, nap ban va va khoi chay tien trinh VoLTE.
-   Buoc 6: Kiem tra bieu tuong 4G LTE va thuc hien cuoc goi thu nghiem!
+   Buoc 6: Bat Che do may bay (Airplane Mode) tren BlackBerry khoang 15 giay roi tat di
+           de tram phat song nha mang cap nhat phien mang 4G VoLTE hai chieu.
+   Buoc 7: Kiem tra bieu tuong 4G LTE va thuc hien cuoc goi thu nghiem!
 
 --------------------------------------------------------------------
 

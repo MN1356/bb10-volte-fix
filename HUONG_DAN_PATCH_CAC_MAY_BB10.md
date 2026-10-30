@@ -30,6 +30,10 @@ Bộ công cụ hồi sinh VoLTE này hoạt động tương thích với **tấ
 5. **Tự Động Ẩn / Cắt Đuôi `@xxx` Khi Có Cuộc Gọi Đến**:
    - Tích hợp daemon thời gian thực giám sát các đối tượng cuộc gọi trên PPS (`/pps/services/phone/private/calls`, `public/calls`, `protected/calls`).
    - Tự động lọc sạch các định dạng SIP routing, trunk URI (như `@ims.mnc004...`, `;user=phone`, `sip:`, `tel:`), chỉ giữ lại số điện thoại hoặc tên trong danh bạ hiển thị trên màn hình cuộc gọi đến và nhật ký cuộc gọi.
+6. **Hỗ Trợ Hoàn Hảo Cả 2 Chiều Cuộc Gọi (Gọi Đi & Nhận Cuộc Gọi Đến)**:
+   - Tự động cấu hình `VDP E-UTRAN = 4` (PS Voice Only) và đăng ký đầy đủ MMTel ICSI Feature Tags (`+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel"` + `+g.3gpp.smsip`).
+   - Ngăn chặn hoàn toàn lỗi tổng đài chuyển hướng CSFB về 2G/3G khiến cuộc gọi đến bị ngắt lập tức.
+   - *Lưu ý quan trọng*: Sau khi cài đặt lần đầu hoặc đổi SIM, hãy bật **Chế độ máy bay (Airplane Mode)** khoảng 15 giây rồi tắt đi để trạm phát sóng nhà mạng cập nhật phiên kết nối 4G VoLTE mới nhất.
 
 ---
 
