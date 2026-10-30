@@ -1,9 +1,16 @@
 {
-  "target_device": "BlackBerry Passport (SQW100-1 / Windermere EMEA)",
+  "target_devices": [
+    "BlackBerry Passport (SQW100-1/2/3/4)",
+    "BlackBerry Classic Q20 (SQC100-1/2/3/4/5)",
+    "BlackBerry Q10 (SQN100-1/2/3/4/5)",
+    "BlackBerry Z30 (STA100-1/2/3/4/5)",
+    "BlackBerry Leap (STR100-1/2)",
+    "BlackBerry Z10 LTE (STL100-2/3/4)"
+  ],
   "target_os": "10.3.3.3216",
   "binary": "/radio/bin/ims_rrm",
   "stock_sha256": "043d38b0f08cf6a9696ef405f3976679e32ff9ad943ec35294c3d3da69a12b67",
-  "patched_sha256": "3353f44609206b8ebcb138ad2b39752af76339e94a839cc0699842608b73b3c2",
+  "patched_sha256": "bb8321db808d52b7b5dfd4d5273c0b85558ec1ae3a3803260ffcf878fbe6f706",
   "patches": [
     {
       "name": "pps_redirect",
@@ -20,6 +27,22 @@
       "original_hex": "c7b9",
       "patched_hex": "18e0",
       "purpose": "selectDomainVoice: bypass VoPS=0 network veto (cbnz r7 -> b 0x62c88)"
+    },
+    {
+      "name": "force_hdvoice_wfc",
+      "offset_hex": "0x9e7e4",
+      "offset_dec": 649188,
+      "original_hex": "1cd1",
+      "patched_hex": "00bf",
+      "purpose": "updateImsServices: bypass restriction on VoLTE HD voice service (bne 0x9e820 -> nop)"
+    },
+    {
+      "name": "force_codec_amrwb",
+      "offset_hex": "0xb8d7a",
+      "offset_dec": 757114,
+      "original_hex": "0146",
+      "patched_hex": "0121",
+      "purpose": "initCodecs: force Codec.AMRWB = 1 in config dictionary (mov r1, r0 -> movs r1, #1)"
     },
     {
       "name": "precondition_policy",
@@ -44,6 +67,30 @@
       "original_hex": "3bd0",
       "patched_hex": "00bf",
       "purpose": "precondStep: bypass 8000ms QCI=1 bearer timer to immediately send UPDATE on 183 Session Progress (beq -> nop)"
+    },
+    {
+      "name": "default_codec_amrwb",
+      "offset_hex": "0x266cde",
+      "offset_dec": 2518238,
+      "original_hex": "0021",
+      "patched_hex": "0121",
+      "purpose": "buildSdpOffer: default Codec.AMRWB to enabled=1 (movs r1, #0 -> movs r1, #1)"
+    },
+    {
+      "name": "never_skip_amrwb_cfg",
+      "offset_hex": "0x266ce6",
+      "offset_dec": 2518246,
+      "original_hex": "80b1",
+      "patched_hex": "00bf",
+      "purpose": "buildSdpOffer: never skip AMR-WB on config check (cbz r0 -> nop)"
+    },
+    {
+      "name": "never_skip_amrwb_media",
+      "offset_hex": "0x266cf2",
+      "offset_dec": 2518258,
+      "original_hex": "50b1",
+      "patched_hex": "00bf",
+      "purpose": "buildSdpOffer: never skip AMR-WB on media format check (cbz r0 -> nop)"
     }
   ]
 }

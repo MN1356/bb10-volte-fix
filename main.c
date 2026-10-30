@@ -297,7 +297,7 @@ int main(int argc, char *argv[]) {
              "-o HostKeyAlgorithms=+ssh-rsa "
              "-o PubkeyAcceptedKeyTypes=+ssh-rsa "
              "-o MACs=+hmac-sha1 "
-             "root@%s \"python3.2 /var/rootdata/bootstrap.py %s\"",
+             "root@%s \"export PYTHONHOME=/usr; export PYTHONPATH=/usr/lib/python32.zip:/usr/lib/python3.2/lib-dynload; /proc/boot/pathtrust '!/var/rootdata/bootstrap.py'; /usr/bin/python3.2 /var/rootdata/bootstrap.py %s\"",
              ssh_bin, key_path, passport_ip, carrier_choice);
 
     ret = system(cmd);
