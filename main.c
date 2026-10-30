@@ -7,12 +7,13 @@
 #include "embedded_data.h"
 #endif
 
-#define TOOL_VERSION "1.1.0"
+#define TOOL_VERSION "1.2.0"
 
 void print_banner() {
     printf("====================================================================\n");
-    printf("     BlackBerry 10 (Passport / Q10 / Q20) VoLTE Revival Tool v%s\n", TOOL_VERSION);
-    printf("     Automatic 4G LTE VoLTE Patcher & Deployer (Vietnam Carriers)\n");
+    printf("     BlackBerry 10 Universal VoLTE Revival Tool v%s\n", TOOL_VERSION);
+    printf("     Supported: Passport, Classic Q20, Q10, Z30, Leap, Z10 LTE\n");
+    printf("     Carriers: Viettel, MobiFone, VinaPhone, Universal Vietnam\n");
     printf("====================================================================\n\n");
 }
 
@@ -48,8 +49,11 @@ int main(int argc, char *argv[]) {
 
     print_banner();
 
-    // Determine OpenSSH path (no quotes around binary path to prevent cmd.exe quote-stripping)
-    if (file_exists("C:\\Windows\\System32\\OpenSSH\\ssh.exe")) {
+    // Determine OpenSSH path (check local folder first, then Windows OpenSSH, then PATH)
+    if (file_exists("ssh.exe") && file_exists("scp.exe")) {
+        strcpy(ssh_bin, "ssh.exe");
+        strcpy(scp_bin, "scp.exe");
+    } else if (file_exists("C:\\Windows\\System32\\OpenSSH\\ssh.exe")) {
         strcpy(ssh_bin, "C:\\Windows\\System32\\OpenSSH\\ssh.exe");
         strcpy(scp_bin, "C:\\Windows\\System32\\OpenSSH\\scp.exe");
     } else {
@@ -241,7 +245,7 @@ int main(int argc, char *argv[]) {
     printf("\n[*] Connecting to root@%s (testing SSH)...\n", passport_ip);
     snprintf(cmd, sizeof(cmd),
              "%s -p 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "
@@ -253,13 +257,20 @@ int main(int argc, char *argv[]) {
 
     int ret = system(cmd);
     if (ret != 0) {
-        printf("\n[-] Error: Could not connect to device at %s (exit code %d).\n", passport_ip, ret);
-        printf("    Diagnosis & Troubleshooting:\n");
-        printf("    1. IP Address: On phone, go to Settings -> Security & Privacy -> Development Mode.\n");
-        printf("       Check the exact 'Development IPv4 Address' shown on your phone's screen.\n");
-        printf("    2. If using USB: In Settings -> Storage & Access, ensure USB is set to 'Connect to Windows'.\n");
-        printf("    3. If using Wi-Fi: Ensure phone and PC are connected to the SAME Wi-Fi network.\n");
-        printf("    4. SSH Key: If you used a personal AutoRoot key, put your 'id_rsa' in this tool's folder.\n");
+        printf("\n[-] Loi: Khong the ket noi SSH toi root@%s (ma loi %d).\n", passport_ip, ret);
+        printf("    ====================================================================\n");
+        printf("    NGUYEN NHAN CHINH & HUONG XU LY:\n");
+        printf("    1. MAY BLACKBERRY CHUA ROOT BANG AUTOROOT V4:\n");
+        printf("       - 'Che do phat trien' (Development Mode) mac dinh chi cho phep\n");
+        printf("         tai khoan 'devuser', KHONG cho phep dang nhap quyen 'root'.\n");
+        printf("       - May bat buoc phai duoc chay AutoRoot V4 truoc de nap SSH root.\n");
+        printf("    2. Kiem tra dia chi IP:\n");
+        printf("       - Neu cam cap USB: mac dinh la 169.254.0.1 (Trong Cai dat -> Luu tru\n");
+        printf("         & Truy cap: chon 'Ket noi voi Windows').\n");
+        printf("       - Neu dung Wi-Fi: vao Cai dat -> Bao mat & rieng tu -> Che do phat\n");
+        printf("         trien de xem dung dia chi IP Wi-Fi dang cap cho may BlackBerry.\n");
+        printf("    3. Neu may da root bang bo key khac: chep file 'id_rsa' vao cung thu muc tool.\n");
+        printf("    ====================================================================\n");
         printf("\nPress Enter to exit...");
         getchar();
         return 1;
@@ -269,7 +280,7 @@ int main(int argc, char *argv[]) {
     printf("\n[*] Uploading VoLTE package to device (/var/rootdata/payload.tar.gz)...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -O -P 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "
@@ -291,7 +302,7 @@ int main(int argc, char *argv[]) {
     printf("\n[*] Deploying and launching VoLTE service on device...\n");
     snprintf(cmd, sizeof(cmd),
              "%s -p 22 -i \"%s\" "
-             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+             "-o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL "
              "-o KexAlgorithms=+diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha256 "
              "-o Ciphers=+aes128-ctr,aes192-ctr,aes256-ctr,aes128-cbc,3des-cbc,aes256-cbc "
              "-o HostKeyAlgorithms=+ssh-rsa "

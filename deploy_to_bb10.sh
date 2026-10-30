@@ -83,12 +83,13 @@ ssh $SSH_OPTS root@$PHONE_IP "
 
 echo "==> [6/6] Configuring carrier profile ($CARRIER) & Launching VoLTE..."
 ssh $SSH_OPTS root@$PHONE_IP "
+  export LD_LIBRARY_PATH=/base/usr/lib:/base/lib:/base/lib/dll:/radio/lib:/radio/lib/dll:/radio/usr/lib:/proc/boot
   export PYTHONHOME=/usr
   export PYTHONPATH=/usr/lib/python32.zip:/usr/lib/python3.2/lib-dynload
   /usr/bin/python3.2 /var/rootdata/q10_volte/device/configure_carrier.py '$CARRIER'
   slay -f python3.2 ims_rrm 2>/dev/null || true
   sleep 1
-  /usr/bin/python3.2 /var/rootdata/q10_volte/device/service.py start
+  /var/rootdata/q10_volte/device/run.sh start
 "
 
 echo "==> Waiting 10s for IMS registration..."

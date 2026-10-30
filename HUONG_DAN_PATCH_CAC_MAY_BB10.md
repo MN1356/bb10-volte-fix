@@ -27,6 +27,9 @@ Bộ công cụ hồi sinh VoLTE này hoạt động tương thích với **tấ
    - Hoàn toàn **không tắt hay vô hiệu hóa** dịch vụ `ebmservice` của BBM Video. BBM Video vẫn sử dụng bình thường, đồng thời luồng gọi di động được cố định trên chuẩn 3GPP IR.92 VoLTE.
 4. **Tự Động Chạy Khi Khởi Động Máy (Auto-Start on Boot)**:
    - Tích hợp sẵn vào thư mục khởi động `/var/addons/q10-unicom-volte/init/start.sh` của AutoRoot V4. Máy khởi động lại là có sóng VoLTE tự động, không cần chạy lại script.
+5. **Tự Động Ẩn / Cắt Đuôi `@xxx` Khi Có Cuộc Gọi Đến**:
+   - Tích hợp daemon thời gian thực giám sát các đối tượng cuộc gọi trên PPS (`/pps/services/phone/private/calls`, `public/calls`, `protected/calls`).
+   - Tự động lọc sạch các định dạng SIP routing, trunk URI (như `@ims.mnc004...`, `;user=phone`, `sip:`, `tel:`), chỉ giữ lại số điện thoại hoặc tên trong danh bạ hiển thị trên màn hình cuộc gọi đến và nhật ký cuộc gọi.
 
 ---
 
@@ -51,12 +54,15 @@ Bộ công cụ hồi sinh VoLTE này hoạt động tương thích với **tấ
 
 ---
 
-### Cách B: Cài đặt trên Windows (1-Click)
+### Cách B: Cài đặt trên Windows (1-Click Standalone EXE)
 
 1. Cắm BlackBerry 10 vào máy tính bằng cáp micro-USB.
-2. Nhấp đúp chuột vào file **`deploy_to_bb10.bat`**.
-3. Nhập địa chỉ IP của máy (mặc định bấm Enter sẽ lấy IP USB `169.254.0.1`).
-4. Chương trình sẽ tự động thực hiện mọi bước triển khai và báo kết quả thành công.
+   *(Trên điện thoại: vào Cài đặt -> Lưu trữ & Truy cập: chọn 'Kết nối với Windows')*.
+2. Nhấp đúp chuột chạy file **`BB10VoLTEPatcher.exe`** (hoặc `PassportVoLTEPatcher.exe`).
+   - *Lưu ý*: File `.exe` này là bản **Standalone All-in-One**, đã nhúng sẵn 100% chìa khóa SSH Root và gói VoLTE vào bên trong file, bạn không cần cài thêm Python hay giải nén thêm thư mục con.
+3. Bấm **Enter** để lấy IP USB mặc định (`169.254.0.1`).
+4. Chọn nhà mạng (Bấm **1** để tự nhận diện thẻ SIM Viettel/VinaPhone/MobiFone).
+5. Chương trình sẽ tự động trích xuất bộ khóa, cấp quyền Windows `icacls`, kết nối SSH root, nạp runtime và kích hoạt VoLTE thành công!
 
 ---
 
